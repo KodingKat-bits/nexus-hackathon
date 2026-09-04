@@ -1,6 +1,6 @@
 import sqlite3
 
-from database import DB_PATH
+from src.database import DB_PATH
 
 
 def get_inventory_risks():
