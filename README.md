@@ -207,14 +207,6 @@ The implementation is designed around the PS03 requirements:
 * Synthetic/generated project data
 * Gemini API through `GEMINI_API_KEY`
 
-## Demo
-
-Demo video:
-
-`[Add final demo video link here]`
-
-The final submission should replace the placeholder above with the submitted demo video URL.
-
 ## Project status
 
 This repository contains the final hackathon application and its deterministic analytics, business-rule retrieval layer, grounding, Gemini explanation layer, tests, generated dataset, and Streamlit interface.
