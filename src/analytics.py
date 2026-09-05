@@ -253,3 +253,36 @@ def get_product_summary(product_id, store_id):
         "change_percent": trend.get("change_percent"),
         "trend": trend.get("trend"),
     }
+
+def find_product_and_store(product_name, store_name):
+    """Find product and store IDs using exact names."""
+
+    connection = sqlite3.connect(DB_PATH)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT product_id
+        FROM products
+        WHERE LOWER(product_name) = LOWER(?)
+    """, (product_name,))
+
+    product = cursor.fetchone()
+
+    cursor.execute("""
+        SELECT store_id
+        FROM stores
+        WHERE LOWER(store_name) = LOWER(?)
+    """, (store_name,))
+
+    store = cursor.fetchone()
+
+    connection.close()
+
+    if not product or not store:
+        return None
+
+    return {
+        "product_id": product["product_id"],
+        "store_id": store["store_id"],
+    }
