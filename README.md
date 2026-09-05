@@ -1,4 +1,4 @@
-TRACK_ID=PS03
+﻿TRACK_ID=PS03
 
 # NexusMart Retail Sales and Inventory Copilot
 
@@ -28,25 +28,32 @@ If the available data cannot reliably answer a question, the system is designed 
 
 ## Architecture
 
-The application follows a grounded analytics architecture:
+The application follows a grounded analytics and retrieval architecture:
 
 ```text
 SQLite database
-      ↓
+      â†“
 Deterministic Python analytics/business logic
-      ↓
+      â†“
 Structured factual results
-      ↓
+      â†“
+Local business-rule retrieval
+(Gemini embeddings + cosine similarity)
+      â†“
 Grounding / business semantics
-      ↓
+      â†“
 Gemini
-      ↓
+      â†“
 Streamlit UI
 ```
 
 The separation between analytics and language generation is intentional.
 
-**SQLite and Python determine business facts. Gemini does not query the database and does not determine business numbers.** Gemini receives verified analytics context and is used to explain the results naturally.
+**SQLite and deterministic Python determine business facts. Gemini does not query the database and does not determine business numbers.** Gemini receives verified analytics context and relevant business-rule context and is used to explain the results naturally.
+
+A small project-owned business-rules document is embedded using Gemini's `gemini-embedding-001` model. Relevant sections are retrieved locally using cosine similarity and supplied as business-rule context.
+
+The retrieved document provides business semantics only. SQLite and deterministic Python analytics remain the source of truth for all business numbers and factual results.
 
 This prevents the language model from inventing products, quantities, trends, or unsupported business conclusions.
 
@@ -64,11 +71,18 @@ Current dataset:
 
 No external business data or external data service is required.
 
+The project also includes a small synthetic business-rules document:
+
+* `data/nexusmart_business_rules.md`
+* Precomputed Gemini embeddings in `data/nexusmart_business_rules_embeddings.json`
+
+The embedding index is committed to the repository so a fresh clone does not need to build the document index at startup.
+
 ## Running the application
 
 ### Requirements
 
-* Python 3.10+ recommended
+* Python 3.11 recommended
 * A Gemini API key available through the `GEMINI_API_KEY` environment variable
 
 ### Install dependencies
@@ -106,9 +120,12 @@ Set the API key using the environment variable:
 GEMINI_API_KEY
 ```
 
-The application uses Gemini for natural-language explanation after deterministic analytics have produced verified results.
+The application uses Gemini for:
 
-The application does not use Gemini to directly query SQLite.
+* Natural-language explanation of verified analytics
+* Embeddings using `gemini-embedding-001` for business-rule retrieval
+
+Gemini does not directly query SQLite and does not determine business numbers. Retrieval provides relevant business-rule context, while deterministic analytics remains the source of truth.
 
 ## Project structure
 
@@ -125,6 +142,7 @@ src/
     grounding.py
     copilot.py
     router.py
+    retrieval.py
 
 tests/
     test_prompt_layer.py
@@ -132,6 +150,8 @@ tests/
 
 data/
     retail.db
+    nexusmart_business_rules.md
+    nexusmart_business_rules_embeddings.json
 ```
 
 ## Validation
@@ -152,6 +172,8 @@ Current stockout-risk results include:
 
 Current out-of-stock items are excluded from future stockout prediction because they have already stocked out.
 
+The application and retrieval pipeline have also been validated with the local embedding index and Gemini API.
+
 ## Hackathon compliance
 
 The implementation is designed around the PS03 requirements:
@@ -166,6 +188,10 @@ The implementation is designed around the PS03 requirements:
 * Data and assumptions behind recommendations
 * Explicit handling of insufficient data instead of guessing
 * Grounded GenAI
+* Gemini embeddings for business-rule retrieval
+* Project-owned business-rule document
+* Precomputed local embedding index
+* Local cosine-similarity retrieval
 * Clear deterministic-logic / LLM separation
 * Modular Python implementation
 * Single-command application startup
@@ -182,4 +208,4 @@ The final submission should replace the placeholder above with the submitted dem
 
 ## Project status
 
-This repository contains the final hackathon application and its deterministic analytics, grounding, Gemini explanation layer, tests, generated dataset, and Streamlit interface.
+This repository contains the final hackathon application and its deterministic analytics, business-rule retrieval layer, grounding, Gemini explanation layer, tests, generated dataset, and Streamlit interface.
