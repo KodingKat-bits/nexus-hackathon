@@ -174,6 +174,15 @@ Current out-of-stock items are excluded from future stockout prediction because 
 
 The application and retrieval pipeline have also been validated with the local embedding index and Gemini API.
 
+## Failure handling
+
+The application is designed to fail gracefully when external AI services are temporarily unavailable.
+
+- Gemini generation failures return a user-friendly temporary-unavailable message.
+- Gemini embedding/retrieval failures do not crash the application; the system continues without retrieved business-rule context.
+- When business-rule context is unavailable, the grounding layer instructs the model not to infer unsupported business rules.
+- Unsupported questions are routed away from deterministic analytics instead of producing fabricated business results.
+
 ## Hackathon compliance
 
 The implementation is designed around the PS03 requirements:
