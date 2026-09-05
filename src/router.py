@@ -49,7 +49,6 @@ def detect_intent(user_question):
         "sales",
         "revenue",
         "performing",
-        "product",
     ]):
         return "product_performance"
 
