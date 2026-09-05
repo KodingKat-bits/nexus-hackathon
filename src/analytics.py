@@ -38,12 +38,16 @@ def get_inventory_risks():
 
         if current_stock == 0:
             status = "OUT_OF_STOCK"
+            attention_type = "REPLENISHMENT"
         elif current_stock <= reorder_level:
             status = "LOW_STOCK"
+            attention_type = "REPLENISHMENT"
         elif current_stock >= reorder_level * 5:
             status = "OVERSTOCK"
+            attention_type = "EXCESS_INVENTORY"
         else:
             status = "NORMAL"
+            attention_type = "NONE"
 
         results.append({
             "store_id": row["store_id"],
@@ -54,6 +58,7 @@ def get_inventory_risks():
             "current_stock": current_stock,
             "reorder_level": reorder_level,
             "status": status,
+            "attention_type": attention_type,
         })
 
     return results
