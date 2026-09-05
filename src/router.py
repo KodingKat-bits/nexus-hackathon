@@ -8,6 +8,7 @@ def detect_intent(user_question):
         "low stock",
         "overstock",
         "replenishment",
+        "attention",
     ]):
         return "inventory"
 
