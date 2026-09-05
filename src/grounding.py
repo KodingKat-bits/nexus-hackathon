@@ -11,6 +11,8 @@ def build_analytics_context(analytics_result):
         "LOW_STOCK": "replenishment attention",
         "OVERSTOCK": "excess-inventory attention",
         "NORMAL": "no immediate inventory attention",
+        "HIGH": "high stockout risk; estimated stockout within 3 days",
+        "MEDIUM": "medium stockout risk; estimated stockout within 5 days",
     }
 
     context = {

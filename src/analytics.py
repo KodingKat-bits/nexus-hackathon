@@ -63,6 +63,49 @@ def get_inventory_risks():
 
     return results
 
+def get_stockout_risks():
+    """Identify products that may run out of stock based on recent sales."""
+
+    inventory_items = get_inventory_risks()
+    results = []
+
+    for item in inventory_items:
+
+        if item["current_stock"] == 0:
+            continue
+        trend = get_product_trend(
+            item["product_id"],
+            item["store_id"]
+        )
+
+        recent_average = trend.get("recent_average_daily_sales")
+
+        if recent_average is None or recent_average <= 0:
+            continue
+
+        days_of_stock = item["current_stock"] / recent_average
+
+        if days_of_stock <= 3:
+            risk_level = "HIGH"
+        elif days_of_stock <= 5:
+            risk_level = "MEDIUM"
+        else:
+            continue
+
+        results.append({
+            "store_id": item["store_id"],
+            "store_name": item["store_name"],
+            "product_id": item["product_id"],
+            "product_name": item["product_name"],
+            "current_stock": item["current_stock"],
+            "recent_average_daily_sales": recent_average,
+            "estimated_days_until_stockout": round(days_of_stock, 1),
+            "risk_level": risk_level,
+        })
+
+    results.sort(key=lambda x: x["estimated_days_until_stockout"])
+
+    return results
 
 def get_product_trend(product_id, store_id, days=30):
     """Compare recent sales with the previous period."""
@@ -286,3 +329,59 @@ def find_product_and_store(product_name, store_name):
         "product_id": product["product_id"],
         "store_id": store["store_id"],
     }
+
+
+def get_sales_anomalies():
+    """Identify significant sales increases and decreases."""
+
+    from src.database import DB_PATH
+    import sqlite3
+
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+
+    products = dict(
+        cursor.execute(
+            "SELECT product_id, product_name FROM products"
+        ).fetchall()
+    )
+
+    stores = dict(
+        cursor.execute(
+            "SELECT store_id, store_name FROM stores"
+        ).fetchall()
+    )
+
+    connection.close()
+
+    anomalies = []
+
+    for product_id in range(1, 31):
+        for store_id in range(1, 4):
+            trend = get_product_trend(product_id, store_id)
+
+            change_percent = trend.get("change_percent")
+
+            if change_percent is None:
+                continue
+
+            if change_percent >= 15:
+                anomaly_type = "SALES_SPIKE"
+            elif change_percent <= -15:
+                anomaly_type = "SALES_DROP"
+            else:
+                continue
+
+            anomalies.append(
+                {
+                    "product_id": product_id,
+                    "product_name": products[product_id],
+                    "store_id": store_id,
+                    "store_name": stores[store_id],
+                    "change_percent": change_percent,
+                    "trend": trend["trend"],
+                    "anomaly_type": anomaly_type,
+                }
+            )
+
+    return anomalies

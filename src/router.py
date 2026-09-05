@@ -5,8 +5,6 @@ def detect_intent(user_question):
 
     if any(word in question for word in [
         "inventory",
-        "stock",
-        "out of stock",
         "low stock",
         "overstock",
         "replenishment",
@@ -20,6 +18,28 @@ def detect_intent(user_question):
         "no sales",
     ]):
         return "non_moving"
+    
+    if any(word in question for word in [
+    "stockout",
+    "stock out",
+    "run out",
+    "running out",
+    "stockout risk",
+    ]):
+        return "stockout_risk"
+    
+    if any(word in question for word in [
+    "spike",
+    "spikes",
+    "drop",
+    "drops",
+    "unusual sales",
+    "sales anomaly",
+    "sales anomalies",
+    "sudden increase",
+    "sudden decrease",
+    ]):
+        return "sales_anomaly"
 
     if any(word in question for word in [
         "trend",
