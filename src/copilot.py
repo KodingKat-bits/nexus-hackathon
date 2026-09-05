@@ -20,10 +20,24 @@ def answer_question(user_question):
     elif intent == "non_moving":
         analytics_result = get_non_moving_products()
 
+    elif intent == "product_performance":
+        product_info = find_product_and_store(
+            product_name="Coffee 200g",
+            store_name="NexusMart Gachibowli",
+        )
+
+        if product_info is None:
+            return "I could not identify the requested product and store."
+
+        analytics_result = get_product_summary(
+            product_id=product_info["product_id"],
+            store_id=product_info["store_id"],
+        )
+
     else:
         return (
-            "I can currently answer questions about inventory attention "
-            "and non-moving products. Please ask one of those questions."
+            "I can currently answer questions about inventory attention, "
+            "non-moving products, and product performance."
         )
 
     grounded_prompt = build_grounded_query(
