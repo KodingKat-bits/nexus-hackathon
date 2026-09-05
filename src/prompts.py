@@ -36,13 +36,16 @@ the verified results—not replacing the deterministic analytics.
 """
 
 
-def build_grounded_prompt(user_question: str, analytics_context: str) -> str:
+def build_grounded_prompt(user_question: str,analytics_context: str,retrieved_context: str = "",) -> str:
     return f"""
 User question:
 {user_question}
 
 Verified analytics context:
 {analytics_context}
+
+Relevant retrieved business-rule context:
+{retrieved_context}
 
 Using ONLY the verified analytics context above, answer the user's question.
 

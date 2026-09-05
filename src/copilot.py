@@ -9,7 +9,9 @@ from src.analytics import (
 from src.gemini_client import generate_response
 from src.grounding import build_grounded_query
 from src.router import detect_intent
+from src.retrieval import load_index, retrieve
 
+RETRIEVAL_INDEX = load_index()
 
 def answer_question(user_question):
     """Route a user question to the appropriate deterministic analytics."""
@@ -95,9 +97,21 @@ def answer_question(user_question):
             "non-moving products, and product performance."
         )
 
+    retrieved_sections = retrieve(
+        user_question,
+        RETRIEVAL_INDEX,
+        top_k=2,
+    )
+
+    retrieved_context = "\n\n".join(
+        f"{item['title']}:\n{item['text']}"
+        for item in retrieved_sections
+    )
+
     grounded_prompt = build_grounded_query(
         user_question=user_question,
         analytics_result=analytics_result,
+        retrieved_context=retrieved_context,
     )
 
     return generate_response(grounded_prompt)

@@ -30,3 +30,15 @@ def generate_response(prompt):
     )
 
     return response.text
+
+def generate_embedding(text):
+    """Generate a Gemini embedding for the supplied text."""
+
+    client = get_client()
+
+    response = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=text,
+    )
+
+    return response.embeddings[0].values

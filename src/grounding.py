@@ -51,12 +51,9 @@ def build_analytics_context(analytics_result):
     )
 
 
-def build_grounded_query(user_question, analytics_result):
+def build_grounded_query(user_question, analytics_result, retrieved_context="",):
     """Build a grounded prompt from verified analytics results."""
 
     analytics_context = build_analytics_context(analytics_result)
 
-    return build_grounded_prompt(
-        user_question=user_question,
-        analytics_context=analytics_context,
-    )
+    return build_grounded_prompt(user_question=user_question, analytics_context=analytics_context, retrieved_context=retrieved_context,)
