@@ -127,7 +127,7 @@ def answer_question(user_question):
         return generate_response(grounded_prompt)
     except Exception:
         return (
-            "I’m unable to generate a response right now because the "
+            "I'm unable to generate a response right now because the "
             "AI service is temporarily unavailable. Please try again."
         )
 
