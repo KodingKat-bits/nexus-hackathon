@@ -97,16 +97,25 @@ def answer_question(user_question):
             "non-moving products, and product performance."
         )
 
-    retrieved_sections = retrieve(
-        user_question,
-        RETRIEVAL_INDEX,
-        top_k=2,
-    )
+    try:
+        retrieved_sections = retrieve(
+            user_question,
+            RETRIEVAL_INDEX,
+            top_k=2,
+        )
+    except Exception:
+        retrieved_sections = []
 
-    retrieved_context = "\n\n".join(
-        f"{item['title']}:\n{item['text']}"
-        for item in retrieved_sections
-    )
+    if retrieved_sections:
+        retrieved_context = "\n\n".join(
+            f"{item['title']}:\n{item['text']}"
+            for item in retrieved_sections
+        )
+    else:
+        retrieved_context = (
+            "No matching business-rule context was available. "
+            "Do not infer business rules beyond the verified analytics."
+        )
 
     grounded_prompt = build_grounded_query(
         user_question=user_question,
@@ -114,7 +123,13 @@ def answer_question(user_question):
         retrieved_context=retrieved_context,
     )
 
-    return generate_response(grounded_prompt)
+    try:
+        return generate_response(grounded_prompt)
+    except Exception:
+        return (
+            "I’m unable to generate a response right now because the "
+            "AI service is temporarily unavailable. Please try again."
+        )
 
 
 def answer_inventory_question(user_question):
